@@ -1,0 +1,30 @@
+name: Deploy Laravel
+
+on:
+  push:
+    branches:
+      - main   # replace with your branch name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy To EC2
+        uses: appleboy/ssh-action@v1.0.3
+
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            cd /var/www/html/Verfication
+
+            git pull origin main
+
+            composer install --no-dev --optimize-autoloader
+
+            php artisan optimize
+
+            sudo systemctl restart httpd
